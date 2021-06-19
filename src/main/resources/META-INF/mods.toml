@@ -1,0 +1,12 @@
+modLoader="javafml"
+loaderVersion="[36,)"
+license="All rights reserved"
+[[mods]]
+modId="armabases"
+version="${file.jarVersion}"
+displayName="ArmaBases"
+credits="All credits reserved to ArmaCraft organization" #optional
+authors="threader"
+description='''
+Base system mod
+'''
