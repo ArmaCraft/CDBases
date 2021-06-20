@@ -2,16 +2,22 @@ package org.armacraft.bases.world.tileentity;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.tileentity.ChestTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class BaseCoreTileEntity extends TileEntity {
     private UUID owner;
+    private List<UUID> trustedPlayers = new ArrayList<>();
     private long lastTimeInteracted;
 
     public BaseCoreTileEntity() {
@@ -46,12 +52,24 @@ public class BaseCoreTileEntity extends TileEntity {
         return lastTimeInteracted;
     }
 
+    public void removeTrustedPlayer(UUID uuid) {
+
+    }
+
     @Override
     public CompoundNBT save(CompoundNBT compound) {
-        compound.putBoolean("isGenerator", true);
         if(this.owner != null) {
             compound.putString("owner", owner.toString());
             compound.putLong("lastTimeInteracted", lastTimeInteracted);
+
+            ListNBT trustedMembersNBT = new ListNBT();
+            for(int i = 0; i<trustedPlayers.size(); i++) {
+                CompoundNBT nbt = new CompoundNBT();
+                nbt.putUUID("uuid", trustedPlayers.get(i));
+                trustedMembersNBT.add(i, nbt);
+            }
+
+            compound.put("trustedPlayers", trustedMembersNBT);
         }
         return super.save(compound);
     }
@@ -59,8 +77,15 @@ public class BaseCoreTileEntity extends TileEntity {
     @Override
     public void load(BlockState state, CompoundNBT compound) {
         if(compound.contains("owner")) {
-            this.owner = UUID.fromString(compound.getString("owner"));
+            this.owner = compound.getUUID("owner");
             this.lastTimeInteracted = compound.getLong("lastTimeInteracted");
+
+            trustedPlayers.clear();
+
+            ListNBT trustedMembersNBT = (ListNBT) compound.get("trustedPlayers");
+            for(int i = 0; i < trustedMembersNBT.size(); i++) {
+                trustedPlayers.add(trustedMembersNBT.getCompound(i).getUUID("uuid"));
+            }
         }
         super.load(state, compound);
     }
