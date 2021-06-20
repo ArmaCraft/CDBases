@@ -1,7 +1,8 @@
 package org.armacraft.bases;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -15,15 +16,15 @@ import org.armacraft.bases.world.block.ModBlocks;
 import org.armacraft.bases.world.structure.ModStructureTemplates;
 import org.armacraft.bases.world.tileentity.ModTileEntities;
 
-@Mod(ArmaBases.MODID)
-public class ArmaBases {
-    public static final String MODID = "armabases";
+@Mod(SurvivalBases.MODID)
+public class SurvivalBases {
+    public static final String MODID = "survivalbases";
 
-    private static ArmaBases instance;
+    private static SurvivalBases instance;
 
     private IModDist dist;
 
-    public ArmaBases() {
+    public SurvivalBases() {
         instance = this;
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
@@ -39,18 +40,17 @@ public class ArmaBases {
     public void onRightClick(PlayerInteractEvent event) {
         //Testing stuff
         if(event.getPlayer().isCrouching()) {
-            Vector3d[][] structure = ModStructureTemplates.WALL_2X3.get().apply(event.getPos().above(), false);
-            for(int i = 0; i<structure.length; i++) {
-                for(int j = 0; j<structure[i].length; j++) {
-                    System.out.println(structure[i][j].toString());
-                }
-            }
+            ModStructureTemplates.DOOR.get().apply(event.getPos().above(), false).forEach(pos -> {
+                Block block = new Block(Block.Properties.of(Material.STONE).strength(-1.0F, 3600000.0F).noDrops().noOcclusion());
+                event.getWorld().setBlock(pos, block.defaultBlockState(), 1);
+                System.out.println(pos);
+            });
         } else {
             Minecraft.getInstance().player.chat(event.getPos().toString());
         }
     }
 
-    public static ArmaBases instance() {
+    public static SurvivalBases instance() {
         return instance;
     }
 }

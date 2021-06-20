@@ -2,9 +2,9 @@ modLoader="javafml"
 loaderVersion="[36,)"
 license="All rights reserved"
 [[mods]]
-modId="armabases"
+modId="survivalbases"
 version="${file.jarVersion}"
-displayName="ArmaBases"
+displayName="SurvivalBases"
 credits="All credits reserved to ArmaCraft organization" #optional
 authors="threader"
 description='''

@@ -1,4 +1,9 @@
 package org.armacraft.bases.world.item;
 
-public class StructureItem {
+import net.minecraft.item.Item;
+
+public class StructureItem extends Item {
+    public StructureItem(Properties p_i48487_1_) {
+        super(p_i48487_1_);
+    }
 }
