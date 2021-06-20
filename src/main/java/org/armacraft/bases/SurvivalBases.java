@@ -13,6 +13,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.armacraft.bases.client.ClientDist;
 import org.armacraft.bases.server.ServerDist;
 import org.armacraft.bases.world.block.ModBlocks;
+import org.armacraft.bases.world.item.ModItems;
 import org.armacraft.bases.world.structure.ModStructureTemplates;
 import org.armacraft.bases.world.tileentity.ModTileEntities;
 
@@ -32,6 +33,7 @@ public class SurvivalBases {
 
         ModTileEntities.TILE_ENTITY_TYPES.register(modEventBus);
         ModBlocks.BLOCKS.register(modEventBus);
+        ModItems.ITEMS.register(modEventBus);
 
         this.dist = DistExecutor.safeRunForDist(() -> ClientDist::new, () -> ServerDist::new);
     }
