@@ -1,6 +1,9 @@
 package org.armacraft.bases.world.structure;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,5 +28,12 @@ public class StructureTemplate {
             }
         }
         return affectedCoords;
+    }
+
+    public void generateStructure(World world, BlockPos blockPos, boolean relativeToX, Block material) {
+        this.apply(blockPos, relativeToX).forEach(pos -> {
+            world.setBlock(pos, material.defaultBlockState(), 1);
+            System.out.println(pos);
+        });
     }
 }

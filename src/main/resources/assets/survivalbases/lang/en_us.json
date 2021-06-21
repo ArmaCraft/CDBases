@@ -1,3 +1,5 @@
 {
-  "block.survivalbases.base_core": "Base Core"
+  "block.survivalbases.base_core": "Base Core",
+  "lore.survivalbases.blueprint.1": "Automatically generates a structure",
+  "lore.survivalbases.blueprint.2": "Must be placed near of a base core"
 }
