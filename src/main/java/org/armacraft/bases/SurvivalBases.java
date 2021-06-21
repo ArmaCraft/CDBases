@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraftforge.client.event.InputUpdateEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -52,8 +53,9 @@ public class SurvivalBases {
         PlayerEntity player = (PlayerEntity) event.getEntity();
         if(player.getItemInHand(Hand.MAIN_HAND).getItem() instanceof StructureItem) {
             StructureItem item = (StructureItem) player.getItemInHand(Hand.MAIN_HAND).getItem();
+            item.setPos(event.getPos().above());
             item.getStructureTemplate().generateStructure(player.getCommandSenderWorld(),
-                    event.getPos().above(), item.isRelativeToX(), item.getMaterialBlock());
+                    item.getPos(), item.getRelative(), item.getMaterialBlock());
             if(!player.isCreative()) {
                 player.setItemInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
             }
@@ -67,9 +69,9 @@ public class SurvivalBases {
             if(player.getItemInHand(Hand.MAIN_HAND).getItem() instanceof StructureItem) {
                 StructureItem item = (StructureItem) player.getItemInHand(Hand.MAIN_HAND).getItem();
                 if(player.isCrouching()) {
-                    item.setRelativoToX(false);
+                    item.setDirection(Direction.Axis.Z);
                 } else {
-                    item.setRelativoToX(true);
+                    item.setDirection(Direction.Axis.X);
                 }
             }
         }

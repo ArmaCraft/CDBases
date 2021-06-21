@@ -7,6 +7,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import static net.minecraft.util.Direction.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.ITextComponent;
@@ -19,7 +20,6 @@ import org.armacraft.bases.world.structure.StructureTemplate;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class StructureItem extends Item {
 
@@ -27,26 +27,29 @@ public class StructureItem extends Item {
     private final long DELAY = 5000;
     private final StructureTemplate structureTemplate;
     private final Block materialBlock;
-    private BlockPos lastPos;
-    private boolean relativeToX = true;
+    private BlockPos pos;
+    private Axis direction = Axis.X;
 
     public StructureItem(Properties properties) {
         super(properties);
         this.structureTemplate = properties.template;
         this.materialBlock = properties.materialBlock;
     }
-    
-    public void setLastPos(BlockPos pos) {
-        this.lastPos = pos;
+
+    public BlockPos getPos() {
+        return pos;
     }
 
-    public void setRelativoToX(boolean bool) {
-        this.relativeToX = bool;
+    public void setPos(BlockPos pos) {
+        this.pos = pos;
     }
 
-    @Override
-    public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
-        return super.onEntityItemUpdate(stack, entity);
+    public void setDirection(Axis axis) {
+        this.direction = axis;
+    }
+
+    public Axis getRelative() {
+        return direction;
     }
 
     @Override
@@ -59,10 +62,6 @@ public class StructureItem extends Item {
 
     public StructureTemplate getStructureTemplate() {
         return structureTemplate;
-    }
-
-    public boolean isRelativeToX() {
-        return relativeToX;
     }
 
     public Block getMaterialBlock() {
