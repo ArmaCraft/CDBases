@@ -55,7 +55,7 @@ public class SurvivalBases {
             StructureItem item = (StructureItem) player.getItemInHand(Hand.MAIN_HAND).getItem();
             item.setPos(event.getPos().above());
             item.getStructureTemplate().generateStructure(player.getCommandSenderWorld(),
-                    item.getPos(), item.getRelative(), item.getMaterialBlock());
+                    item.getPos(), item.getDirection(), item.getMaterialBlock());
             if(!player.isCreative()) {
                 player.setItemInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
             }

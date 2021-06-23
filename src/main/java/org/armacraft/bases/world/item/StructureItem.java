@@ -48,7 +48,7 @@ public class StructureItem extends Item {
         this.direction = axis;
     }
 
-    public Axis getRelative() {
+    public Axis getDirection() {
         return direction;
     }
 
