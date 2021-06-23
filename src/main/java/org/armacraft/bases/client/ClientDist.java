@@ -32,6 +32,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.armacraft.bases.IModDist;
 import org.armacraft.bases.util.RaytracingUtil;
 import org.armacraft.bases.world.item.StructureItem;
+import org.lwjgl.opengl.GL11;
 
 import java.nio.ByteBuffer;
 import java.util.HashSet;
@@ -63,13 +64,21 @@ public class ClientDist implements IModDist {
     }
 
     @SubscribeEvent
-    public void handleWorldRender(RenderWorldLastEvent event) {
+    public void handleWorldRender(TickEvent.ClientTickEvent event) {
         PlayerEntity player = Minecraft.getInstance().player;
         if (player != null && player.isAddedToWorld()) {
             if (player.getItemInHand(Hand.MAIN_HAND).getItem() instanceof StructureItem) {
                 StructureItem item = (StructureItem) player.getItemInHand(Hand.MAIN_HAND).getItem();
                 RaytracingUtil.rayTraceBlocks(player, RayTraceContext.FluidMode.NONE, 5D, System.currentTimeMillis()).ifPresent(result -> {
                     item.getStructureTemplate().apply(result.getBlockPos(), item.getDirection()).forEach(pos -> {
+                        GL11.glEnable(GL11.GL_BLEND);
+                        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+                        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+                        GL11.glLineWidth(2);
+                        GL11.glDisable(GL11.GL_TEXTURE_2D);
+                        GL11.glEnable(GL11.GL_CULL_FACE);
+                        GL11.glDisable(GL11.GL_DEPTH_TEST);
+                        GL11.glDisable(GL11.GL_LIGHTING);
                         glPushMatrix();
                         glTranslated(-pos.getX(), -pos.getY(), -pos.getZ());
                         Tessellator tessellator = Tessellator.getInstance();
@@ -98,6 +107,11 @@ public class ClientDist implements IModDist {
                         buffer.vertex(bb.minX, bb.maxY, bb.maxZ).color(255, 255, 0, 10).endVertex();
                         tessellator.end();
                         glPopMatrix();
+                        GL11.glColor4f(1, 1, 1, 1);
+                        GL11.glEnable(GL11.GL_DEPTH_TEST);
+                        GL11.glEnable(GL11.GL_TEXTURE_2D);
+                        GL11.glDisable(GL11.GL_BLEND);
+                        GL11.glDisable(GL11.GL_LINE_SMOOTH);
                     });
                 });
             }
