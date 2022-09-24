@@ -1,10 +1,10 @@
 package org.armacraft.bases.world.item;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 import org.armacraft.bases.SurvivalBases;
 import org.armacraft.bases.world.block.ModBlocks;
 import org.armacraft.bases.world.structure.ModStructureTemplates;
@@ -19,5 +19,5 @@ public class ModItems {
                             .setMaterialBlock(ModBlocks.CONCRETE_BLOCK.get())
                             .setTemplate(ModStructureTemplates.WALL_2X3.get())
                             .stacksTo(1)
-                            .tab(ItemGroup.TAB_MISC)));
+                            .tab(CreativeModeTab.TAB_MISC)));
 }

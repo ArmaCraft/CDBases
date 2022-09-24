@@ -1,10 +1,9 @@
 package org.armacraft.bases.world.structure;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -31,7 +30,7 @@ public class StructureTemplate {
         return affectedCoords;
     }
 
-    public void generateStructure(World world, BlockPos blockPos, Direction.Axis direction, Block material) {
+    public void generateStructure(Level world, BlockPos blockPos, Direction.Axis direction, Block material) {
         this.apply(blockPos, direction).forEach(pos -> world.setBlock(pos, material.defaultBlockState(), 1));
     }
 }

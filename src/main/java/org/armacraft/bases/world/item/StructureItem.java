@@ -1,21 +1,16 @@
 package org.armacraft.bases.world.item;
 
-import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import static net.minecraft.util.Direction.Axis;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextComponentUtils;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import org.armacraft.bases.world.structure.StructureTemplate;
 
 import javax.annotation.Nullable;
@@ -28,7 +23,7 @@ public class StructureItem extends Item {
     private final StructureTemplate structureTemplate;
     private final Block materialBlock;
     private BlockPos pos;
-    private Axis direction = Axis.X;
+    private Direction.Axis direction = Direction.Axis.X;
 
     public StructureItem(Properties properties) {
         super(properties);
@@ -44,20 +39,20 @@ public class StructureItem extends Item {
         this.pos = pos;
     }
 
-    public void setDirection(Axis axis) {
+    public void setDirection(Direction.Axis axis) {
         this.direction = axis;
     }
 
-    public Axis getDirection() {
+    public Direction.Axis getDirection() {
         return direction;
     }
 
     @Override
-    public void appendHoverText(ItemStack p_77624_1_, @Nullable World p_77624_2_, List<ITextComponent> p_77624_3_, ITooltipFlag p_77624_4_) {
-        super.appendHoverText(p_77624_1_, p_77624_2_, p_77624_3_, p_77624_4_);
-        p_77624_3_.add(new StringTextComponent(""));
-        p_77624_3_.add(new TranslationTextComponent("lore.survivalbases.blueprint.1").withStyle(TextFormatting.GRAY));
-        p_77624_3_.add(new TranslationTextComponent("lore.survivalbases.blueprint.2").withStyle(TextFormatting.GRAY));
+    public void appendHoverText(ItemStack item, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(item, world, tooltip, flag);
+        tooltip.add(new TextComponent(""));
+        tooltip.add(new TranslatableComponent("lore.survivalbases.blueprint.1").withStyle(ChatFormatting.GRAY));
+        tooltip.add(new TranslatableComponent("lore.survivalbases.blueprint.2").withStyle(ChatFormatting.GRAY));
     }
 
     public StructureTemplate getStructureTemplate() {

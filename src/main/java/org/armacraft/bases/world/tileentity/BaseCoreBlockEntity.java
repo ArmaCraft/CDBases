@@ -1,34 +1,40 @@
 package org.armacraft.bases.world.tileentity;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class BaseCoreTileEntity extends TileEntity {
+public class BaseCoreBlockEntity extends BlockEntity implements BlockEntityType.BlockEntitySupplier<BaseCoreBlockEntity> {
     private UUID owner;
     private List<UUID> trustedPlayers = new ArrayList<>();
     private long lastTimeInteracted;
 
-    public BaseCoreTileEntity() {
-        super(ModTileEntities.BASE_CORE_TILE.get());
+    public BaseCoreBlockEntity(BlockPos pos, BlockState state) {
+        super(ModTileEntities.BASE_CORE_BLOCK_ENTITY.get(), pos, state);
     }
 
     @Override
-    public SUpdateTileEntityPacket getUpdatePacket() {
-        CompoundNBT nbtTag = new CompoundNBT();
-        nbtTag = this.save(nbtTag);
-        return new SUpdateTileEntityPacket(this.getBlockPos(), -1, nbtTag);
+    public @NotNull CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        this.saveAdditional(tag);
+        return tag;
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt){}
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
 
     public void setOwner(UUID owner) {
         this.owner = owner;
@@ -53,36 +59,40 @@ public class BaseCoreTileEntity extends TileEntity {
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT compound) {
+    protected void saveAdditional(CompoundTag compound) {
         if(this.owner != null) {
             compound.putString("owner", owner.toString());
             compound.putLong("lastTimeInteracted", lastTimeInteracted);
 
-            ListNBT trustedMembersNBT = new ListNBT();
+            ListTag trustedMembersNBT = new ListTag();
             for(int i = 0; i<trustedPlayers.size(); i++) {
-                CompoundNBT nbt = new CompoundNBT();
+                CompoundTag nbt = new CompoundTag();
                 nbt.putUUID("uuid", trustedPlayers.get(i));
                 trustedMembersNBT.add(i, nbt);
             }
 
             compound.put("trustedPlayers", trustedMembersNBT);
         }
-        return super.save(compound);
     }
 
     @Override
-    public void load(BlockState state, CompoundNBT compound) {
+    public void load(CompoundTag compound) {
         if(compound.contains("owner")) {
             this.owner = compound.getUUID("owner");
             this.lastTimeInteracted = compound.getLong("lastTimeInteracted");
 
             trustedPlayers.clear();
 
-            ListNBT trustedMembersNBT = (ListNBT) compound.get("trustedPlayers");
+            ListTag trustedMembersNBT = (ListTag) compound.get("trustedPlayers");
             for(int i = 0; i < trustedMembersNBT.size(); i++) {
                 trustedPlayers.add(trustedMembersNBT.getCompound(i).getUUID("uuid"));
             }
         }
-        super.load(state, compound);
+        super.load(compound);
+    }
+
+    @Override
+    public BaseCoreBlockEntity create(BlockPos pos, BlockState state) {
+        return ModTileEntities.BASE_CORE_BLOCK_ENTITY.get().create(pos, state);
     }
 }

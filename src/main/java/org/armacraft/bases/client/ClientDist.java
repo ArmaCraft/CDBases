@@ -1,45 +1,23 @@
 package org.armacraft.bases.client;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
+import com.mojang.math.Matrix4f;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.renderer.BlockRendererDispatcher;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.RenderSkybox;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraftforge.client.event.DrawHighlightEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.event.RenderLevelLastEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.armacraft.bases.IModDist;
 import org.armacraft.bases.util.RaytracingUtil;
 import org.armacraft.bases.world.item.StructureItem;
 import org.lwjgl.opengl.GL11;
-
-import java.nio.ByteBuffer;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static org.lwjgl.opengl.GL11.*;
 
 public class ClientDist implements IModDist {
 
@@ -48,74 +26,87 @@ public class ClientDist implements IModDist {
     }
 
     @SubscribeEvent
-    public void handleRender(TickEvent.ClientTickEvent event) {
-        /*PlayerEntity player = Minecraft.getInstance().player;
+    public void handleWorldRender(RenderLevelLastEvent event) {
+        LocalPlayer player = Minecraft.getInstance().player;
         if (player != null && player.isAddedToWorld()) {
-            if (player.getItemInHand(Hand.MAIN_HAND).getItem() instanceof StructureItem) {
-                StructureItem item = (StructureItem) player.getItemInHand(Hand.MAIN_HAND).getItem();
-                RaytracingUtil.rayTraceBlocks(player, RayTraceContext.FluidMode.NONE, 5D, System.currentTimeMillis()).ifPresent(result -> {
-                    renderStructure = true;
-                    item.getStructureTemplate().apply(result.getBlockPos(), item.getDirection()).forEach(pos -> {
-
-                    });
-                });
-            }
-        }*/
-    }
-
-    @SubscribeEvent
-    public void handleWorldRender(TickEvent.ClientTickEvent event) {
-        PlayerEntity player = Minecraft.getInstance().player;
-        if (player != null && player.isAddedToWorld()) {
-            if (player.getItemInHand(Hand.MAIN_HAND).getItem() instanceof StructureItem) {
-                StructureItem item = (StructureItem) player.getItemInHand(Hand.MAIN_HAND).getItem();
-                RaytracingUtil.rayTraceBlocks(player, RayTraceContext.FluidMode.NONE, 5D, System.currentTimeMillis()).ifPresent(result -> {
-                    item.getStructureTemplate().apply(result.getBlockPos(), item.getDirection()).forEach(pos -> {
-                        GL11.glEnable(GL11.GL_BLEND);
-                        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-                        GL11.glEnable(GL11.GL_LINE_SMOOTH);
-                        GL11.glLineWidth(2);
-                        GL11.glDisable(GL11.GL_TEXTURE_2D);
-                        GL11.glEnable(GL11.GL_CULL_FACE);
-                        GL11.glDisable(GL11.GL_DEPTH_TEST);
-                        GL11.glDisable(GL11.GL_LIGHTING);
-                        glPushMatrix();
-                        glTranslated(-pos.getX(), -pos.getY(), -pos.getZ());
-                        Tessellator tessellator = Tessellator.getInstance();
-                        BufferBuilder buffer = tessellator.getBuilder();
-                        buffer.begin(GL_LINES, DefaultVertexFormats.POSITION);
-                        AxisAlignedBB bb = new AxisAlignedBB(0, 0, 0, 1, 1, 1);
-                        buffer.vertex(bb.minX, bb.minY, bb.minZ).color(255, 255, 0, 10).endVertex();
-                        buffer.vertex(bb.maxX, bb.minY, bb.minZ).color(255, 255, 0, 10).endVertex();
-                        buffer.vertex(bb.maxX, bb.minY, bb.maxZ).color(255, 255, 0, 10).endVertex();
-                        buffer.vertex(bb.minX, bb.minY, bb.maxZ).color(255, 255, 0, 10).endVertex();
-                        buffer.vertex(bb.minX, bb.minY, bb.minZ).color(255, 255, 0, 10).endVertex();
-
-                        buffer.vertex(bb.minX, bb.maxY, bb.minZ).color(255, 255, 0, 10).endVertex();
-                        buffer.vertex(bb.maxX, bb.maxY, bb.minZ).color(255, 255, 0, 10).endVertex();
-                        buffer.vertex(bb.maxX, bb.maxY, bb.maxZ).color(255, 255, 0, 10).endVertex();
-                        buffer.vertex(bb.minX, bb.maxY, bb.maxZ).color(255, 255, 0, 10).endVertex();
-                        buffer.vertex(bb.minX, bb.maxY, bb.minZ).color(255, 255, 0, 10).endVertex();
-
-                        buffer.vertex(bb.minX, bb.minY, bb.minZ).color(255, 255, 0, 10).endVertex();
-                        buffer.vertex(bb.minX, bb.maxY, bb.minZ).color(255, 255, 0, 10).endVertex();
-                        buffer.vertex(bb.maxX, bb.minY, bb.minZ).color(255, 255, 0, 10).endVertex();
-                        buffer.vertex(bb.maxX, bb.maxY, bb.minZ).color(255, 255, 0, 10).endVertex();
-                        buffer.vertex(bb.maxX, bb.minY, bb.maxZ).color(255, 255, 0, 10).endVertex();
-                        buffer.vertex(bb.maxX, bb.maxY, bb.maxZ).color(255, 255, 0, 10).endVertex();
-                        buffer.vertex(bb.minX, bb.minY, bb.maxZ).color(255, 255, 0, 10).endVertex();
-                        buffer.vertex(bb.minX, bb.maxY, bb.maxZ).color(255, 255, 0, 10).endVertex();
-                        tessellator.end();
-                        glPopMatrix();
-                        GL11.glColor4f(1, 1, 1, 1);
-                        GL11.glEnable(GL11.GL_DEPTH_TEST);
-                        GL11.glEnable(GL11.GL_TEXTURE_2D);
-                        GL11.glDisable(GL11.GL_BLEND);
-                        GL11.glDisable(GL11.GL_LINE_SMOOTH);
+            if (player.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof StructureItem) {
+                StructureItem item = (StructureItem) player.getItemInHand(InteractionHand.MAIN_HAND).getItem();
+                RaytracingUtil.rayTraceBlocks(player, ClipContext.Fluid.NONE, 5D, System.currentTimeMillis()).ifPresent(result -> {
+                    item.getStructureTemplate().apply(new BlockPos(result.getLocation()), item.getDirection()).forEach(pos -> {
+                        drawBox(event.getPoseStack(), event.getProjectionMatrix(), pos, event.getPartialTick(), 1, 1, 1, 1);
                     });
                 });
             }
         }
+    }
+
+    public static void drawBox(PoseStack matrix, Matrix4f projectionMatrix, BlockPos where, float partialTicks, float r, float g, float b, float a) {
+        Vec3 view = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        LocalPlayer player = Minecraft.getInstance().player;
+
+        RenderSystem.depthMask(false);
+        RenderSystem.disableCull();
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.disableTexture();
+        RenderSystem.lineWidth(5f);
+        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+
+        double beginX = where.getX(), beginY = where.getY(), beginZ = where.getZ();
+
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+
+        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+        VertexBuffer vertexBuffer = new VertexBuffer();
+
+        buffer.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
+        buffer.vertex(beginX, beginY, beginZ).color(r, g, b, a).endVertex();
+        buffer.vertex(beginX+1, beginY, beginZ).color(r, g, b, a).endVertex();
+
+        buffer.vertex(beginX+1, beginY+1, beginZ).color(r, g, b, a).endVertex();
+        buffer.vertex(beginX, beginY+1, beginZ).color(r, g, b, a).endVertex();
+
+        buffer.vertex(beginX, beginY, beginZ).color(r, g, b, a).endVertex();
+        buffer.vertex(beginX, beginY+1, beginZ).color(r, g, b, a).endVertex();
+
+        buffer.vertex(beginX+1, beginY+1, beginZ).color(r, g, b, a).endVertex();
+        buffer.vertex(beginX+1, beginY, beginZ).color(r, g, b, a).endVertex();
+
+        buffer.vertex(beginX, beginY, beginZ+1).color(r, g, b, a).endVertex();
+        buffer.vertex(beginX+1, beginY, beginZ+1).color(r, g, b, a).endVertex();
+
+        buffer.vertex(beginX+1, beginY+1, beginZ+1).color(r, g, b, a).endVertex();
+        buffer.vertex(beginX, beginY+1, beginZ+1).color(r, g, b, a).endVertex();
+
+        buffer.vertex(beginX, beginY, beginZ+1).color(r, g, b, a).endVertex();
+        buffer.vertex(beginX, beginY+1, beginZ+1).color(r, g, b, a).endVertex();
+
+        buffer.vertex(beginX+1, beginY+1, beginZ+1).color(r, g, b, a).endVertex();
+        buffer.vertex(beginX+1, beginY, beginZ+1).color(r, g, b, a).endVertex();
+
+        buffer.vertex(beginX, beginY, beginZ).color(r, g, b, a).endVertex();
+        buffer.vertex(beginX, beginY, beginZ+1).color(r, g, b, a).endVertex();
+
+        buffer.vertex(beginX+1, beginY, beginZ).color(r, g, b, a).endVertex();
+        buffer.vertex(beginX+1, beginY, beginZ+1).color(r, g, b, a).endVertex();
+
+        buffer.vertex(beginX, beginY+1, beginZ+1).color(r, g, b, a).endVertex();
+        buffer.vertex(beginX, beginY+1, beginZ).color(r, g, b, a).endVertex();
+
+        buffer.vertex(beginX+1, beginY+1, beginZ).color(r, g, b, a).endVertex();
+        buffer.vertex(beginX+1, beginY+1, beginZ+1).color(r, g, b, a).endVertex();
+
+        buffer.end();
+        vertexBuffer.bind();
+        vertexBuffer.upload(buffer);
+
+        matrix.pushPose();
+        matrix.translate(-view.x, -view.y, -view.z);
+        ShaderInstance shader = GameRenderer.getPositionColorShader();
+        vertexBuffer.drawWithShader(matrix.last().pose(), projectionMatrix.copy(), shader);
+        matrix.popPose();
+
+        VertexBuffer.unbind();
     }
 
 
