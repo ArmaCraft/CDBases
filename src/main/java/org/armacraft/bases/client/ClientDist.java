@@ -3,6 +3,8 @@ package org.armacraft.bases.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
+import com.mojang.math.Vector4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
@@ -32,8 +34,11 @@ public class ClientDist implements IModDist {
             if (player.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof StructureItem) {
                 StructureItem item = (StructureItem) player.getItemInHand(InteractionHand.MAIN_HAND).getItem();
                 RaytracingUtil.rayTraceBlocks(player, ClipContext.Fluid.NONE, 5D, System.currentTimeMillis()).ifPresent(result -> {
+                    Vector3f color = item.getStructureTemplate().available(new BlockPos(result.getLocation()), item.getDirection(), player.getLevel())
+                            ? new Vector3f(1, 1, 1)
+                            : new Vector3f(1, 0, 0);
                     item.getStructureTemplate().apply(new BlockPos(result.getLocation()), item.getDirection()).forEach(pos -> {
-                        drawBox(event.getPoseStack(), event.getProjectionMatrix(), pos, event.getPartialTick(), 1, 1, 1, 1);
+                        drawBox(event.getPoseStack(), event.getProjectionMatrix(), pos, event.getPartialTick(), color.x(), color.y(), color.z(), 1);
                     });
                 });
             }

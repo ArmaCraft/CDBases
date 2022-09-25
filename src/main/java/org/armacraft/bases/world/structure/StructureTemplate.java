@@ -15,6 +15,10 @@ public class StructureTemplate {
         this.template = template;
     }
 
+    public boolean available(BlockPos pos, Direction.Axis direction, Level level) {
+        return apply(pos, direction).stream().allMatch((x) -> level.getBlockState(x).isAir());
+    }
+
     public Set<BlockPos> apply(BlockPos pos, Direction.Axis direction) {
         Set<BlockPos> affectedCoords = new HashSet<>();
         for(int i = 0; i < template.length; i++) {

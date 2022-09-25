@@ -20,4 +20,12 @@ public class ModItems {
                             .setTemplate(ModStructureTemplates.WALL_2X3.get())
                             .stacksTo(1)
                             .tab(CreativeModeTab.TAB_MISC)));
+
+    public static final RegistryObject<StructureItem> CONCRETE_DOOR_STRUCTURE =
+            ITEMS.register("concrete_door",
+                    () -> new StructureItem((StructureItem.Properties) new StructureItem.Properties()
+                            .setMaterialBlock(ModBlocks.CONCRETE_BLOCK.get())
+                            .setTemplate(ModStructureTemplates.DOOR.get())
+                            .stacksTo(1)
+                            .tab(CreativeModeTab.TAB_MISC)));
 }
